@@ -219,12 +219,11 @@
 <div class="container">
     <h1 th:text="${userInfo.name}"></h1>
     <div class="profile-image">
-        <img th:src="@{'/profile_images/' + ${userInfo.profileImageUrl}}" alt="Profile Image">
+        <img th:src="@{'/profile_images/' + ${userInfo.profileImageUrl}}">
         <form id="profileImageUploadForm" enctype="multipart/form-data">
             <div class="buttons">
                 <input type="file" id="profileImageInput" name="profileImage" accept="image/*" style="display:none;">
                 <button type="button" onclick="document.getElementById('profileImageInput').click();">이미지 업로드</button>
-                <!-- Removed the Save button -->
                 <button type="button" id="removeImage">이미지 제거</button>
             </div>
         </form>

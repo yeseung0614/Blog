@@ -122,7 +122,7 @@ public class MemberService {
         return fileName;
     }
 
-    private void deleteFile(String fileName) {
+    public void deleteFile(String fileName) {
         if (fileName != null) {
             try {
                 Path path = Paths.get(uploadDir).resolve(fileName);

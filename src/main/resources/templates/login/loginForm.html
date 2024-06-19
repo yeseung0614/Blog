@@ -3,11 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <!-- Optional CSS -->
-    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group.button-group {
+            text-align: center;
+        }
+        button {
+            display: inline-block;
+            padding: 12px 20px; /* 크기 키움 */
+            border: none;
+            background-color: #5cb85c;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px; /* 폰트 크기 키움 */
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+        }
+    </style>
 </head>
 <body>
-<div class="login-container">
+<div class="container">
     <h2>Login</h2>
     <form th:action="@{/api/login}" th:object="${loginForm}" method="post">
         <div class="form-group">
@@ -18,7 +78,7 @@
             <label for="password">Password:</label>
             <input type="password" id="password" th:field="*{password}" required>
         </div>
-        <div class="form-group">
+        <div class="form-group button-group">
             <button type="submit">Login</button>
         </div>
         <!-- Displaying global errors -->

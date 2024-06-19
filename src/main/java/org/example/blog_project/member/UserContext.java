@@ -2,10 +2,10 @@ package org.example.blog_project.member;
 
 public class UserContext {
     private static final ThreadLocal<String> userHolder = new ThreadLocal<>();
-    public static void setUser(String user) {
-        userHolder.set(user);
+    public static void setUserId(String userId) {
+        userHolder.set(userId);
     }
-    public static String getUser() {
+    public static String getUserId() {
         return userHolder.get();
     }
     public static void clear() {

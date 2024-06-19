@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.example.blog_project.comment.Comment;
 import org.example.blog_project.follow.Follow;
 import org.example.blog_project.likes.Likes;
@@ -18,6 +19,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Getter
+@Setter
 public class Member {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

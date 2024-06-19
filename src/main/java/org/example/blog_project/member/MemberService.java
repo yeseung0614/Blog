@@ -86,6 +86,8 @@ public class MemberService {
                 .orElseThrow(() -> new RuntimeException("존재하지않는 유저"));
         member.setBlogName(blogName);
 
+        memberRepository.save(member);
+
     }
 
 

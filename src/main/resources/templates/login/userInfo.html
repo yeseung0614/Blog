@@ -143,6 +143,10 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .edit-buttons button.save {
+            background-color: #4CAF50; /* 초록색으로 변경 */
+            color: #fff;
+        }
         .edit-buttons button.cancel {
             background-color: #FF5252;
             color: #fff;
@@ -160,7 +164,7 @@
                     `<input type="text" id="newBlogName" value="${currentBlogName}">` +
                     `<div class="edit-buttons">` +
                     `<button id="cancelEdit" class="cancel">취소</button>` +
-                    `<button id="saveBlogName">확인</button>` +
+                    `<button id="saveBlogName" class="save">확인</button>` +
                     `</div>`
                 );
 
@@ -204,8 +208,8 @@
     </div>
     <div class="info-card">
         <label>Blog Name:</label>
-        <div id="blogNameContainer" style="flex-grow: 1; text-align: center;">
-            <span id="blogName" th:text="${userInfo.blogName}"></span>
+        <div id="blogNameContainer" style="flex-grow: 1; display: flex; justify-content: space-between;">
+            <span id="blogName" style="flex-grow: 1; text-align: center;" th:text="${userInfo.blogName}"></span>
             <a href="#" id="editBlogName" style="margin-left: 10px;">수정</a>
         </div>
     </div>

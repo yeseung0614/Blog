@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>User Info</title>
-    <link rel="stylesheet" href="/css/style.css"> <!-- 스타일 시트 경로를 적절히 수정하세요 -->
+    <link rel="stylesheet" href="/css/style.css">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4; /* 밝은 배경색 */
-            color: #333; /* 어두운 텍스트 색 */
+            background-color: #f4f4f4;
+            color: #333;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -16,7 +16,7 @@
             margin: 0;
         }
         .container {
-            background-color: #fff; /* 밝은 컨테이너 배경 */
+            background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -39,7 +39,7 @@
             width: 150px;
             height: 150px;
             border-radius: 50%;
-            border: 2px solid #4CAF50; /* 이미지 테두리 색 */
+            border: 2px solid #4CAF50;
             margin-bottom: 10px;
         }
         .profile-image .buttons {
@@ -58,8 +58,8 @@
             background-color: #f0f0f0;
         }
         .info-card {
-            background-color: #f9f9f9; /* 밝은 카드 배경 */
-            border: 1px solid #ddd; /* 밝은 카드 테두리 */
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 15px;
@@ -86,7 +86,7 @@
             display: none;
         }
         .info-card .toggle label {
-            background-color: #FF5252; /* 기본 배경색 (꺼진 상태) */
+            background-color: #FF5252;
             border: 1px solid #bbb;
             border-radius: 12px;
             cursor: pointer;
@@ -109,7 +109,7 @@
             left: 3px;
         }
         .info-card .toggle input:checked + label {
-            background-color: #4CAF50; /* 체크된 상태 배경색 */
+            background-color: #4CAF50;
         }
         .info-card .toggle input:checked + label:before {
             transform: translateX(26px);
@@ -144,7 +144,7 @@
             cursor: pointer;
         }
         .edit-buttons button.save {
-            background-color: #4CAF50; /* 초록색으로 변경 */
+            background-color: #4CAF50;
             color: #fff;
         }
         .edit-buttons button.cancel {
@@ -158,10 +158,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#profileImageUploadForm').on('submit', function(event) {
-                event.preventDefault();
-
-                var formData = new FormData(this);
+            $('#profileImageInput').on('change', function(event) {
+                var formData = new FormData($('#profileImageUploadForm')[0]);
 
                 $.ajax({
                     url: '/api/info/profile-image',
@@ -171,7 +169,7 @@
                     contentType: false,
                     success: function(response) {
                         alert('프로필 이미지가 업데이트되었습니다.');
-                        $('img[th\\:src]').attr('src', response);
+                        location.reload(); // Reload the page
                     },
                     error: function() {
                         alert('프로필 이미지 업데이트에 실패했습니다.');
@@ -219,13 +217,14 @@
 </head>
 <body>
 <div class="container">
-    <h1 th:text="${userInfo.name}"></h1> <!-- 이름을 큰 글씨로 표시 -->
+    <h1 th:text="${userInfo.name}"></h1>
     <div class="profile-image">
-        <img th:src="@{${userInfo.profileImageUrl}}">
+        <img th:src="@{'/profile_images/' + ${userInfo.profileImageUrl}}" alt="Profile Image">
         <form id="profileImageUploadForm" enctype="multipart/form-data">
             <div class="buttons">
-                <input type="file" name="profileImage" accept="image/*" required>
-                <button type="submit">이미지 업로드</button>
+                <input type="file" id="profileImageInput" name="profileImage" accept="image/*" style="display:none;">
+                <button type="button" onclick="document.getElementById('profileImageInput').click();">이미지 업로드</button>
+                <!-- Removed the Save button -->
                 <button type="button" id="removeImage">이미지 제거</button>
             </div>
         </form>

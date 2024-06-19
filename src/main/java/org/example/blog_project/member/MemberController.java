@@ -53,8 +53,7 @@ public class MemberController {
     @ResponseBody
     public String updateProfileImage(@RequestParam(name = "profileImage")MultipartFile file){
         Long memberId =Long.parseLong(UserContext.getUserId());
-        return memberService.updateProfileImage(file,memberId);
-
+        return "/profile_images/" + memberService.updateProfileImage(file,memberId);
     }
 
     @GetMapping("/api/checkLoginId")

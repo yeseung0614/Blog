@@ -2,6 +2,7 @@ package org.example.blog_project.member;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.blog_project.member.dto.InfoDto;
 import org.example.blog_project.member.dto.LoginForm;
 import org.example.blog_project.member.dto.RegisterForm;
@@ -15,12 +16,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
-    @Value("${file.upload-dir}")
+    @Value("${file.path}")
     private String uploadDir;
+
 
     private final MemberRepository memberRepository;
 
@@ -85,6 +88,8 @@ public class MemberService {
     public InfoDto getUserInfo(Long memberId){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("존재하지않는 유저"));
+
+        log.info(member.getProfileImageUrl());
         return InfoDto.builder()
                 .blogName(member.getBlogName())
                 .name(member.getName())
@@ -104,16 +109,31 @@ public class MemberService {
 
     }
 
-    public String updateProfileImage(MultipartFile file, Long memberId){
+    public String updateProfileImage(MultipartFile file, Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("존재하지않는 유저"));
-        String path = saveFile(file);
-        member.setProfileImageUrl(path);
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 유저"));
+
+        deleteFile(member.getProfileImageUrl());
+        String fileName = saveFile(file);
+        member.setProfileImageUrl(fileName);
 
         memberRepository.save(member);
 
-        return path;
+        return fileName;
     }
+
+    private void deleteFile(String fileName) {
+        if (fileName != null) {
+            try {
+                Path path = Paths.get(uploadDir).resolve(fileName);
+                Files.deleteIfExists(path);
+                System.out.println("File deleted: " + path.toString());
+            } catch (IOException e) {
+                System.err.println("Failed to delete file: " + e.getMessage());
+            }
+        }
+    }
+
 
     private String saveFile(MultipartFile file) {
         try {
@@ -125,13 +145,13 @@ public class MemberService {
 
             // Generate a unique filename
             String originalFilename = file.getOriginalFilename();
-            String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
+            String uniqueFilename = UUID.randomUUID() + "_" + originalFilename;
             Path filePath = uploadPath.resolve(uniqueFilename);
 
             // Save the file
             file.transferTo(filePath.toFile());
 
-            return filePath.toString();
+            return uniqueFilename;
         } catch (IOException e) {
             throw new RuntimeException("Failed to save file", e);
         }

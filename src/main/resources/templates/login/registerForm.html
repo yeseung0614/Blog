@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+<h1>Register</h1>
+<form th:action="@{/api/register}" th:object="${registerForm}" method="post">
+    <div>
+        <label for="loginId">User ID:</label>
+        <input type="text" id="loginId" th:field="*{loginId}" required>
+    </div>
+    <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" th:field="*{password}" required>
+    </div>
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" th:field="*{name}" required>
+    </div>
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" th:field="*{email}" required>
+    </div>
+    <div>
+        <input type="checkbox" id="allowCommentPush" th:field="*{allowCommentPush}">
+        <label for="allowCommentPush">Allow comment notifications</label>
+    </div>
+    <div>
+        <input type="checkbox" id="allowUpdatePush" th:field="*{allowUpdatePush}">
+        <label for="allowUpdatePush">Allow update notifications</label>
+    </div>
+    <div>
+        <button type="submit">Register</button>
+    </div>
+    <!-- Displaying errors -->
+    <div th:if="${#fields.hasErrors()}">
+        <p class="error" th:each="err : ${#fields.errors('*')}" th:text="${err}">Error</p>
+    </div>
+</form>
+</body>
+</html>

@@ -2,6 +2,7 @@ package org.example.blog_project.member;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.blog_project.comment.Comment;
@@ -36,16 +37,16 @@ public class Member {
 
     private String profileImageUrl;
 
-    @NotNull
+    @Column(nullable = false)
     private LocalDate registrationDate = LocalDate.now();
 
-    @NotNull
+    @Column(nullable = false)
     private Boolean isAdmin = false;
 
-    @NotNull
+    @Column(nullable = false) //DB에 넣을때만 null이 아니면 됨
     private String blogName = loginId;
 
-    @NotNull
+    @NotNull //입력할때 null X
     private Boolean allowCommentPush = true;
 
     @NotNull
@@ -68,4 +69,15 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     List<ReadPost> readPostList = new ArrayList<>();
+
+    @Builder
+    public Member(String loginId, String password, String name, String email, String blogName, Boolean allowCommentPush, Boolean allowUpdatePush) {
+        this.loginId = loginId;
+        this.password = password;
+        this.name = name;
+        this.email = email;
+        this.blogName = blogName;
+        this.allowCommentPush = allowCommentPush;
+        this.allowUpdatePush = allowUpdatePush;
+    }
 }

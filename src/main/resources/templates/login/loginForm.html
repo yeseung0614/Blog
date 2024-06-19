@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <!-- Optional CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="login-container">
+    <h2>Login</h2>
+    <form th:action="@{/api/login}" th:object="${loginForm}" method="post">
+        <div class="form-group">
+            <label for="loginId">User ID:</label>
+            <input type="text" id="loginId" th:field="*{loginId}" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" th:field="*{password}" required>
+        </div>
+        <div class="form-group">
+            <button type="submit">Login</button>
+        </div>
+        <!-- Displaying global errors -->
+        <div th:if="${#fields.hasGlobalErrors()}">
+            <p class="error" th:each="err : ${#fields.globalErrors()}" th:text="${err.defaultMessage}">Error</p>
+        </div>
+        <!-- Hidden field for redirect URL -->
+        <input type="hidden" th:value="${redirectURL}" name="redirectURL">
+    </form>
+</div>
+</body>
+</html>

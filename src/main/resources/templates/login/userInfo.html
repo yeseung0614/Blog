@@ -158,6 +158,27 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            $('#profileImageUploadForm').on('submit', function(event) {
+                event.preventDefault();
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: '/api/info/profile-image',
+                    type: 'PUT',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        alert('프로필 이미지가 업데이트되었습니다.');
+                        $('img[th\\:src]').attr('src', response);
+                    },
+                    error: function() {
+                        alert('프로필 이미지 업데이트에 실패했습니다.');
+                    }
+                });
+            });
+
             $(document).on('click', '#editBlogName', function() {
                 const currentBlogName = $('#blogName').text();
                 $('#blogNameContainer').html(
@@ -201,10 +222,13 @@
     <h1 th:text="${userInfo.name}"></h1> <!-- 이름을 큰 글씨로 표시 -->
     <div class="profile-image">
         <img th:src="@{${userInfo.profileImageUrl}}">
-        <div class="buttons">
-            <button>이미지 업로드</button>
-            <button>이미지 제거</button>
-        </div>
+        <form id="profileImageUploadForm" enctype="multipart/form-data">
+            <div class="buttons">
+                <input type="file" name="profileImage" accept="image/*" required>
+                <button type="submit">이미지 업로드</button>
+                <button type="button" id="removeImage">이미지 제거</button>
+            </div>
+        </form>
     </div>
     <div class="info-card">
         <label>Blog Name:</label>

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequiredArgsConstructor
@@ -46,6 +47,14 @@ public class MemberController {
     public void updateBlogName(@RequestParam String blogName){
         Long memberId =Long.parseLong(UserContext.getUserId());
         memberService.updateBlogName(blogName,memberId);
+    }
+
+    @PutMapping("/api/info/profile-image")
+    @ResponseBody
+    public String updateProfileImage(@RequestParam(name = "profileImage")MultipartFile file){
+        Long memberId =Long.parseLong(UserContext.getUserId());
+        return memberService.updateProfileImage(file,memberId);
+
     }
 
     @GetMapping("/api/checkLoginId")

@@ -3,9 +3,7 @@ package org.example.blog_project.member;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.blog_project.member.dto.InfoDto;
-import org.example.blog_project.member.dto.LoginForm;
-import org.example.blog_project.member.dto.RegisterForm;
+import org.example.blog_project.member.dto.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -169,9 +167,23 @@ public class MemberService {
         }
     }
 
-    public Boolean deleteMember(Long memberId,String password){
+    public void updateAllowCommentEmail(Long memberId, AllowCommentDto allowCommentDto){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 유저"));
+        member.setAllowCommentPush(allowCommentDto.getValue());
+        memberRepository.save(member);
+    }
+    public void updateAllowUpdateEmail(Long memberId, AllowUpdateDto allowUpdateDto){
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 유저"));
+        member.setAllowUpdatePush(allowUpdateDto.getValue());
+        memberRepository.save(member);
+    }
+
+    public Boolean deleteMember(Long memberId,String password){
+        Member member = memberRepository.findById(memberId)
+                .orElse(null);
+
         if (member == null || !(member.getPassword().equals(password))){
             return false;
         }

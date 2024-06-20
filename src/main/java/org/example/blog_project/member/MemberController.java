@@ -6,9 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.User;
-import org.example.blog_project.member.dto.InfoDto;
-import org.example.blog_project.member.dto.LoginForm;
-import org.example.blog_project.member.dto.RegisterForm;
+import org.example.blog_project.member.dto.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -102,42 +100,47 @@ public class MemberController {
     public String login(@Valid @ModelAttribute LoginForm form,
                         BindingResult bindingResult,
                         HttpServletRequest request,
-                        @RequestParam(defaultValue = "/") String redirectURL){
+                        @RequestParam(defaultValue = "/") String redirectURL) {
 
-        if(bindingResult.hasErrors()){
-            return "login/loginForm";
+        if (bindingResult.hasErrors()) {
+            return "redirect:/login";
         }
 
         Long memberId = memberService.login(form);
-        if(memberId == null){
-            bindingResult.reject("loginFail","ID 또는 비밀번호가 맞지않습니다");
-            return "login/loginForm";
+        if (memberId == null) {
+            return "redirect:/login?error=true";
         }
-        log.info("memberId 존재 !!!!!!!!!!!!"+memberId);
 
         HttpSession session = request.getSession();
-        session.setAttribute(SessionConst.LOGIN_MEMBER,memberId);
+        session.setAttribute(SessionConst.LOGIN_MEMBER, memberId);
 
         UserContext.setUserId(String.valueOf(memberId));
-
 
         return "redirect:" + redirectURL;
     }
 
 
 
+    @PutMapping("/api/info/send-comment-email")
+    public ResponseEntity<Void> updateAllowCommentEmail(@RequestBody AllowCommentDto allowCommentDto){
+        Long memberId = Long.parseLong(UserContext.getUserId());
+        memberService.updateAllowCommentEmail(memberId,allowCommentDto);
+        return ResponseEntity.ok().build();
+    }
 
-
-
-
+    @PutMapping("/api/info/send-update-email")
+    public ResponseEntity<Void> updateAllowUpdateEmail(@RequestBody AllowUpdateDto allowUpdateDto){
+        Long memberId = Long.parseLong(UserContext.getUserId());
+        memberService.updateAllowUpdateEmail(memberId,allowUpdateDto);
+        return ResponseEntity.ok().build();
+    }
 
     @DeleteMapping("/api/delete-account")
     public ResponseEntity<String> deleteMember(@RequestParam String password){
-        Long memberId =Long.parseLong(UserContext.getUserId()); //null이 들어가있음;;;
-        log.info("memberId = "+memberId);
+        Long memberId =Long.parseLong(UserContext.getUserId());
         Boolean result = memberService.deleteMember(memberId, password);
         if (result){
-            return ResponseEntity.ok("회원 탈퇴가 완료");
+            return ResponseEntity.ok("회원 탈퇴 완료");
         }
         return ResponseEntity.ok("오류");
     }

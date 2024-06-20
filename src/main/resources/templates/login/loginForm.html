@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,7 +22,7 @@
             width: 100%;
             box-sizing: border-box;
         }
-        h1, h2 {
+        h1 {
             text-align: center;
             color: #333;
         }
@@ -43,19 +42,14 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
-        .form-group.button-group {
-            text-align: center;
-        }
         button {
             display: inline-block;
-            padding: 12px 20px; /* 크기 키움 */
+            padding: 10px 15px;
             border: none;
             background-color: #5cb85c;
             color: #fff;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px; /* 폰트 크기 키움 */
-            margin-top: 10px;
         }
         button:hover {
             background-color: #4cae4c;
@@ -63,30 +57,29 @@
         .error {
             color: red;
             font-size: 0.9em;
+            text-align: center;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>Login</h2>
-    <form th:action="@{/api/login}" th:object="${loginForm}" method="post">
-        <div class="form-group">
-            <label for="loginId">User ID:</label>
-            <input type="text" id="loginId" th:field="*{loginId}" required>
+    <h1>로그인</h1>
+    <form th:action="@{/api/login}" method="post">
+        <div th:if="${param.error}" class="error">
+            존재하지 않는 아이디거나 틀린 비밀번호입니다.
         </div>
         <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" th:field="*{password}" required>
+            <label for="loginId">아이디 :</label>
+            <input type="text" id="loginId" name="loginId" required>
         </div>
-        <div class="form-group button-group">
-            <button type="submit">Login</button>
+        <div class="form-group">
+            <label for="password">비밀번호 :</label>
+            <input type="password" id="password" name="password" required>
         </div>
-        <!-- Displaying global errors -->
-        <div th:if="${#fields.hasGlobalErrors()}">
-            <p class="error" th:each="err : ${#fields.globalErrors()}" th:text="${err.defaultMessage}">Error</p>
+        <div class="form-buttons">
+            <button type="submit">로그인</button>
         </div>
-        <!-- Hidden field for redirect URL -->
-        <input type="hidden" th:value="${redirectURL}" name="redirectURL">
     </form>
 </div>
 </body>

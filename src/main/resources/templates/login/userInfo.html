@@ -154,6 +154,75 @@
         .edit-buttons button:hover {
             opacity: 0.9;
         }
+        .delete-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .delete-buttons button {
+            background-color: #FF5252;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .delete-buttons button:hover {
+            opacity: 0.9;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 8px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .modal-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .modal-buttons .confirm {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+        .modal-buttons .cancel {
+            background-color: #FF5252;
+            color: #fff;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -185,9 +254,8 @@
             $('#removeImage').on('click', function() {
                 var fileName = $(this).data('filename');
                 $.ajax({
-                    url: '/api/info/profile-image',
+                    url: '/api/info/profile-image?fileName=' + encodeURIComponent(fileName),
                     type: 'DELETE',
-                    data: { fileName: fileName },
                     success: function(response) {
                         alert('프로필 이미지가 제거되었습니다.');
                         location.reload(); // Reload the page
@@ -218,9 +286,9 @@
                 $(document).on('click', '#saveBlogName', function() {
                     const newBlogName = $('#newBlogName').val();
                     $.ajax({
-                        url: '/api/info/blog-name',
+                        url: '/api/info/blog-name?blogName=' + encodeURIComponent(newBlogName),
                         type: 'PUT',
-                        data: { blogName: newBlogName },
+
                         success: function() {
                             $('#blogNameContainer').html(
                                 `<span id="blogName">${newBlogName}</span>` +
@@ -240,6 +308,69 @@
                     );
                 });
             });
+
+            $('#commentPush').on('change', function() {
+                updateNotificationSettings('send-comment-email', this.checked);
+            });
+
+            $('#updatePush').on('change', function() {
+                updateNotificationSettings('send-update-email', this.checked);
+            });
+
+            function updateNotificationSettings(endpoint, value) {
+                $.ajax({
+                    url: '/api/info/' + endpoint,
+                    type: 'PUT',
+                    data: JSON.stringify({ value: value }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        alert('알림 설정이 업데이트되었습니다.');
+                    },
+                    error: function(xhr, status, error) {
+                        if (xhr.status === 401) {
+                            alert('로그인이 필요합니다.');
+                            window.location.href = '/login?redirectURL=' + window.location.pathname;
+                        } else {
+                            alert('알림 설정 업데이트에 실패했습니다.');
+                        }
+                    }
+                });
+            }
+
+            // 모달 열기
+            $('#deleteAccountButton').on('click', function() {
+                $('#deleteAccountModal').css('display', 'block');
+            });
+
+            // 모달 닫기
+            $('.close, .cancel').on('click', function() {
+                $('#deleteAccountModal').css('display', 'none');
+            });
+
+            // 회원 탈퇴 처리
+            $('#confirmDelete').on('click', function() {
+                var password = $('#passwordInput').val();
+                if (password) {
+                    $.ajax({
+                        url: '/api/delete-account?password=' + encodeURIComponent(password),
+                        type: 'DELETE',
+                        success: function(response) {
+                            alert(response);
+                            if (response === '회원 탈퇴 완료') {
+                                window.location.href = '/login';
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            if (xhr.status === 401) {
+                                alert('로그인이 필요합니다.');
+                                window.location.href = '/login?redirectURL=' + window.location.pathname;
+                            } else {
+                                alert('회원 탈퇴에 실패했습니다.');
+                            }
+                        }
+                    });
+                }
+            });
         });
     </script>
 </head>
@@ -257,7 +388,7 @@
         </form>
     </div>
     <div class="info-card">
-        <label>Blog Name:</label>
+        <label>블로그 이름:</label>
         <div id="blogNameContainer" style="flex-grow: 1; display: flex; justify-content: space-between;">
             <span id="blogName" style="flex-grow: 1; text-align: center;" th:text="${userInfo.blogName}"></span>
             <a href="#" id="editBlogName" style="margin-left: 10px;">수정</a>
@@ -268,19 +399,37 @@
         <span th:text="${userInfo.email}"></span>
     </div>
     <div class="info-card">
-        <label>Allow Comment Notifications:</label>
+        <label>댓글 이메일 수신 :</label>
         <div class="toggle">
             <input type="checkbox" id="commentPush" th:checked="${userInfo.allowCommentPush}">
             <label for="commentPush"></label>
         </div>
     </div>
     <div class="info-card">
-        <label>Allow Update Notifications:</label>
+        <label>업데이트 이메일 수신 :</label>
         <div class="toggle">
             <input type="checkbox" id="updatePush" th:checked="${userInfo.allowUpdatePush}">
             <label for="updatePush"></label>
         </div>
     </div>
+    <div class="delete-buttons">
+        <button id="deleteAccountButton">회원 탈퇴</button>
+    </div>
 </div>
+
+<!-- 모달 -->
+<div id="deleteAccountModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>회원 탈퇴</h2>
+        <p>계정을 삭제하려면 비밀번호를 입력하세요:</p>
+        <input type="password" id="passwordInput" placeholder="비밀번호">
+        <div class="modal-buttons">
+            <button id="confirmDelete" class="confirm">탈퇴</button>
+            <button class="cancel">취소</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

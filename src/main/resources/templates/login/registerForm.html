@@ -80,34 +80,58 @@
         .checkbox-label input {
             margin-right: 10px;
         }
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+        }
     </style>
     <script>
         $(document).ready(function() {
+            let isLoginIdChecked = false;
+            let isEmailChecked = false;
+
             function validateLoginId() {
                 var loginId = $('#loginId').val();
                 if (!/^[a-zA-Z0-9]{8,}$/.test(loginId)) {
-                    $('#loginIdStatus').text('User ID must be at least 8 characters long and contain only letters and numbers.').removeClass('success').addClass('error');
+                    $('#loginIdStatus').text('아이디는 영문, 숫자로 구성된 8자 이상이여야 합니다.').removeClass('success').addClass('error');
+                    $('#checkLoginIdBtn').attr('disabled', true);
+                    isLoginIdChecked = false;
                 } else {
-                    $('#loginIdStatus').text('Valid User ID format.').removeClass('error').addClass('success');
+                    $('#loginIdStatus').text('올바른 아이디 형식').removeClass('error').addClass('success');
+                    $('#checkLoginIdBtn').attr('disabled', false);
                 }
             }
 
             function validateEmail() {
                 var email = $('#email').val();
                 if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-                    $('#emailStatus').text('Invalid email format.').removeClass('success').addClass('error');
+                    $('#emailStatus').text('올바르지 않은 이메일 형식').removeClass('success').addClass('error');
+                    $('#checkEmailBtn').attr('disabled', true);
+                    isEmailChecked = false;
                 } else {
-                    $('#emailStatus').text('Valid email format.').removeClass('error').addClass('success');
+                    $('#emailStatus').text('올바른 이메일 형식').removeClass('error').addClass('success');
+                    $('#checkEmailBtn').attr('disabled', false);
                 }
             }
+
+            $('#loginId').on('input', function() {
+                validateLoginId();
+                isLoginIdChecked = false;
+            });
+
+            $('#email').on('input', function() {
+                validateEmail();
+                isEmailChecked = false;
+            });
 
             $('#checkLoginIdBtn').on('click', function() {
                 var loginId = $('#loginId').val();
                 $.get('/api/checkLoginId', {loginId: loginId}, function(data) {
                     if (!data) {
-                        $('#loginIdStatus').text('User ID is already taken.').removeClass('success').addClass('error');
+                        $('#loginIdStatus').text('이미 존재하는 아이디').removeClass('success').addClass('error');
                     } else {
-                        $('#loginIdStatus').text('User ID is available.').removeClass('error').addClass('success');
+                        $('#loginIdStatus').text('사용 가능한 아이디').removeClass('error').addClass('success');
+                        isLoginIdChecked = true;
                     }
                 });
             });
@@ -116,9 +140,10 @@
                 var email = $('#email').val();
                 $.get('/api/checkEmail', {email: email}, function(data) {
                     if (!data) {
-                        $('#emailStatus').text('Email is already registered.').removeClass('success').addClass('error');
+                        $('#emailStatus').text('이미 존재하는 이메일').removeClass('success').addClass('error');
                     } else {
-                        $('#emailStatus').text('Email is available.').removeClass('error').addClass('success');
+                        $('#emailStatus').text('사용 가능한 이메일').removeClass('error').addClass('success');
+                        isEmailChecked = true;
                     }
                 });
             });
@@ -127,25 +152,29 @@
                 var password = $('#password').val();
                 var confirmPassword = $('#confirmPassword').val();
                 if (password !== confirmPassword) {
-                    $('#passwordError').text('Passwords do not match').addClass('error');
+                    $('#passwordError').text('동일하지 않은 비밀번호').addClass('error');
                 } else {
                     $('#passwordError').text('').removeClass('error');
                 }
             });
 
-            // 아이디와 이메일 형식 검증 실시간 업데이트
-            $('#loginId').on('input', validateLoginId);
-            $('#email').on('input', validateEmail);
-
             $('form').on('submit', function(e) {
                 var loginId = $('#loginId').val();
                 var email = $('#email').val();
                 if (!/^[a-zA-Z0-9]{8,}$/.test(loginId)) {
-                    $('#loginIdStatus').text('User ID must be at least 8 characters long and contain only letters and numbers.').addClass('error');
+                    $('#loginIdStatus').text('아이디는 영문, 숫자로 구성된 8자 이상이여야 합니다.').removeClass('success').addClass('error');
                     e.preventDefault();
                 }
                 if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-                    $('#emailStatus').text('Invalid email format.').addClass('error');
+                    $('#emailStatus').text('이메일 형식에 맞지 않습니다.').removeClass('success').addClass('error');
+                    e.preventDefault();
+                }
+                if (!isLoginIdChecked) {
+                    $('#loginIdStatus').text('아이디 중복 확인을 해주세요.').removeClass('success').addClass('error');
+                    e.preventDefault();
+                }
+                if (!isEmailChecked) {
+                    $('#emailStatus').text('이메일 중복 확인을 해주세요.').removeClass('success').addClass('error');
                     e.preventDefault();
                 }
             });
@@ -154,49 +183,48 @@
 </head>
 <body>
 <div class="container">
-    <h1>Register</h1>
+    <h1>회원 가입</h1>
     <form th:action="@{/api/register}" th:object="${registerForm}" method="post">
         <div class="form-group">
-            <label for="loginId">User ID:</label>
+            <label for="loginId">아이디 :</label>
             <div class="form-group-inline">
                 <input type="text" id="loginId" th:field="*{loginId}" required>
-                <button type="button" id="checkLoginIdBtn">Check</button>
+                <button type="button" id="checkLoginIdBtn" disabled>중복 확인</button>
             </div>
             <span id="loginIdStatus" class="error"></span>
         </div>
         <div class="form-group">
-            <label for="password">Password:</label>
+            <label for="password">비밀번호 :</label>
             <input type="password" id="password" th:field="*{password}" required>
         </div>
         <div class="form-group">
-            <label for="confirmPassword">Confirm Password:</label>
+            <label for="confirmPassword">비밀번호 확인 :</label>
             <input type="password" id="confirmPassword" required>
             <span id="passwordError" class="error"></span>
         </div>
         <div class="form-group">
-            <label for="name">Name:</label>
+            <label for="name">이름:</label>
             <input type="text" id="name" th:field="*{name}" required>
         </div>
         <div class="form-group">
             <label for="email">Email:</label>
             <div class="form-group-inline">
                 <input type="email" id="email" th:field="*{email}" required>
-                <button type="button" id="checkEmailBtn">Check</button>
+                <button type="button" id="checkEmailBtn" disabled>중복 확인</button>
             </div>
             <span id="emailStatus" class="error"></span>
         </div>
         <div class="form-group checkbox-label">
             <input type="checkbox" id="allowCommentPush" th:field="*{allowCommentPush}">
-            <label for="allowCommentPush">Allow comment notifications</label>
+            <label for="allowCommentPush">댓글 이메일 수신 동의</label>
         </div>
         <div class="form-group checkbox-label">
             <input type="checkbox" id="allowUpdatePush" th:field="*{allowUpdatePush}">
-            <label for="allowUpdatePush">Allow update notifications</label>
+            <label for="allowUpdatePush">업데이트 이메일 수신 동의</label>
         </div>
-        <div class="form-group">
-            <button type="submit">Register</button>
+        <div class="form-buttons">
+            <button type="submit">회원 가입</button>
         </div>
-        <!-- Displaying errors -->
         <div th:if="${#fields.hasErrors()}">
             <p class="error" th:each="err : ${#fields.errors('*')}" th:text="${err}">Error</p>
         </div>

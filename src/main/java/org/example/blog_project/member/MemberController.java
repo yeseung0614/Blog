@@ -56,6 +56,17 @@ public class MemberController {
         return "/profile_images/" + memberService.updateProfileImage(file,memberId);
     }
 
+    @DeleteMapping("/api/info/profile-image")
+    public ResponseEntity<String> deleteProfileImage(@RequestParam("fileName") String fileName) {
+        Long memberId = Long.parseLong(UserContext.getUserId());
+        boolean deleted = memberService.deleteFile(memberId, fileName);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Profile image not found");
+        }
+    }
+
     @GetMapping("/api/checkLoginId")
     public ResponseEntity<Boolean> checkLoginId(@RequestParam String loginId) {
         Boolean isAvailable = memberService.idCheck(loginId);

@@ -171,8 +171,36 @@
                         alert('프로필 이미지가 업데이트되었습니다.');
                         location.reload(); // Reload the page
                     },
-                    error: function() {
-                        alert('프로필 이미지 업데이트에 실패했습니다.');
+                    error: function(xhr, status, error) {
+                        if (xhr.status === 401) {
+                            alert('로그인이 필요합니다.');
+                            window.location.href = '/login?redirectURL=' + window.location.pathname;
+                        } else {
+                            alert('프로필 이미지 업데이트에 실패했습니다.');
+                        }
+                    }
+                });
+            });
+
+            $('#removeImage').on('click', function() {
+                var fileName = $(this).data('filename');
+                $.ajax({
+                    url: '/api/info/profile-image',
+                    type: 'DELETE',
+                    data: { fileName: fileName },
+                    success: function(response) {
+                        alert('프로필 이미지가 제거되었습니다.');
+                        location.reload(); // Reload the page
+                    },
+                    error: function(xhr, status, error) {
+                        if (xhr.status === 404) {
+                            alert('프로필 이미지가 이미 제거되었습니다.');
+                        } else if (xhr.status === 401) {
+                            alert('로그인이 필요합니다.');
+                            window.location.href = '/login?redirectURL=' + window.location.pathname;
+                        } else {
+                            alert('프로필 이미지 제거에 실패했습니다.');
+                        }
                     }
                 });
             });
@@ -224,7 +252,7 @@
             <div class="buttons">
                 <input type="file" id="profileImageInput" name="profileImage" accept="image/*" style="display:none;">
                 <button type="button" onclick="document.getElementById('profileImageInput').click();">이미지 업로드</button>
-                <button type="button" id="removeImage">이미지 제거</button>
+                <button type="button" id="removeImage" th:attr="data-filename=${userInfo.profileImageUrl}">이미지 제거</button>
             </div>
         </form>
     </div>

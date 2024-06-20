@@ -113,7 +113,7 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 유저"));
 
-        deleteFile(member.getProfileImageUrl());
+        deleteFile(memberId, member.getProfileImageUrl());
         String fileName = saveFile(file);
         member.setProfileImageUrl(fileName);
 
@@ -122,15 +122,27 @@ public class MemberService {
         return fileName;
     }
 
-    public void deleteFile(String fileName) {
-        if (fileName != null) {
-            try {
-                Path path = Paths.get(uploadDir).resolve(fileName);
-                Files.deleteIfExists(path);
-                System.out.println("File deleted: " + path.toString());
-            } catch (IOException e) {
-                System.err.println("Failed to delete file: " + e.getMessage());
+    public boolean deleteFile(Long memberId, String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
+            return false;
+        }
+        try {
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new RuntimeException("존재하지 않는 유저"));
+
+            if (member.getProfileImageUrl() == null) {
+                return false;
             }
+
+            member.setProfileImageUrl(null);
+            memberRepository.save(member);
+            Path path = Paths.get(uploadDir).resolve(fileName);
+            Files.deleteIfExists(path);
+            System.out.println("File deleted: " + path.toString());
+            return true;
+        } catch (IOException e) {
+            System.err.println("Failed to delete file: " + e.getMessage());
+            return false;
         }
     }
 

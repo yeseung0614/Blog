@@ -18,10 +18,19 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${upload.path}")
     private String uploadPath;
 
+    @Value("${content.resource.path}")
+    private String contentResourcePath;
+
+    @Value("${content.upload.path}")
+    private String contentUploadPath;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler(uploadPath)
                 .addResourceLocations(resourcePath);
+
+        registry.addResourceHandler(contentUploadPath)
+                .addResourceLocations(contentResourcePath);
     }
 
     @Bean

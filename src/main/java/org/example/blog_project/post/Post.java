@@ -2,6 +2,7 @@ package org.example.blog_project.post;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.blog_project.comment.Comment;
@@ -54,6 +55,7 @@ public class Post {
     List<Comment> commentList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "orderIndex")
     List<PostImage> postImageList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -64,4 +66,14 @@ public class Post {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     List<PostTag> postTagList = new ArrayList<>();
+
+
+    @Builder
+    public Post(String title, String content, Boolean isTemp, Member member, List<PostTag> postTagList) {
+        this.title = title;
+        this.content = content;
+        this.isTemp = isTemp;
+        this.member = member;
+        this.postTagList = postTagList;
+    }
 }

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>게시글 작성</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="file"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        .form-group input[type="file"] {
+            padding: 5px;
+        }
+        .form-group input[type="checkbox"] {
+            margin-right: 5px;
+        }
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .actions button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .actions button:hover {
+            background-color: #45a049;
+        }
+        .actions .cancel {
+            background-color: #FF5252;
+        }
+        .actions .cancel:hover {
+            background-color: #ff3333;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>게시글 작성</h1>
+    <form th:action="@{/api/posts}" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="title">제목</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+            <label for="tags">태그</label>
+            <input type="text" id="tags" name="tags" placeholder="태그1, 태그2, 태그3" required>
+        </div>
+        <div class="form-group">
+            <label for="content">내용</label>
+            <textarea id="content" name="content" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="files">이미지 업로드</label>
+            <input type="file" id="files" name="files" multiple>
+        </div>
+        <div class="form-group">
+            <input type="checkbox" id="isTemp" name="isTemp">
+            <label for="isTemp">임시 저장</label>
+        </div>
+        <div class="actions">
+            <button type="submit">작성</button>
+            <button type="button" class="cancel" onclick="window.location.href='/'">취소</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

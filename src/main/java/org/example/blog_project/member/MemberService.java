@@ -180,6 +180,20 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    public Boolean updateEmail(Long memberId,String newEmail){
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 유저"));
+        if (!newEmail.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            return false;
+        }
+        if (!emailCheck(newEmail)) {
+            return false;
+        }
+        member.setEmail(newEmail);
+        memberRepository.save(member);
+        return true;
+    }
+
     public Boolean deleteMember(Long memberId,String password){
         Member member = memberRepository.findById(memberId)
                 .orElse(null);

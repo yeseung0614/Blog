@@ -223,10 +223,32 @@
             background-color: #FF5252;
             color: #fff;
         }
+        .success {
+            color: green;
+            font-size: 0.9em;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            let emailChecked = false;
+
+            function validateEmail() {
+                var email = $('#newEmail').val();
+                if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+                    $('#emailStatus').text('올바르지 않은 이메일 형식').removeClass('success').addClass('error');
+                    $('#saveEmail').attr('disabled', true);
+                    emailChecked = false;
+                } else {
+                    $('#emailStatus').text('올바른 이메일 형식').removeClass('error').addClass('success');
+                    $('#saveEmail').attr('disabled', false);
+                }
+            }
+
             $('#profileImageInput').on('change', function(event) {
                 var formData = new FormData($('#profileImageUploadForm')[0]);
 
@@ -288,7 +310,6 @@
                     $.ajax({
                         url: '/api/info/blog-name?blogName=' + encodeURIComponent(newBlogName),
                         type: 'PUT',
-
                         success: function() {
                             $('#blogNameContainer').html(
                                 `<span id="blogName">${newBlogName}</span>` +
@@ -371,6 +392,67 @@
                     });
                 }
             });
+
+            $(document).on('click', '#editEmail', function() {
+                const currentEmail = $('#email').text();
+                $('#emailContainer').html(
+                    `<input type="text" id="newEmail" value="${currentEmail}">` +
+                    `<button type="button" id="checkEmailBtn">중복 확인</button>` +
+                    `<span id="emailStatus" class="error"></span>` +
+                    `<div class="edit-buttons">` +
+                    `<button id="cancelEditEmail" class="cancel">취소</button>` +
+                    `<button id="saveEmail" class="save" disabled>확인</button>` +
+                    `</div>`
+                );
+
+                $('#newEmail').on('input', function() {
+                    emailChecked = false;
+                    $('#emailStatus').text('');
+                    validateEmail();
+                });
+
+                $('#checkEmailBtn').on('click', function() {
+                    const newEmail = $('#newEmail').val();
+                    $.get('/api/checkEmail', { email: newEmail }, function(data) {
+                        if (!data) {
+                            $('#emailStatus').text('이미 존재하는 이메일').removeClass('success').addClass('error');
+                            emailChecked = false;
+                        } else {
+                            $('#emailStatus').text('사용 가능한 이메일').removeClass('error').addClass('success');
+                            emailChecked = true;
+                            validateEmail();
+                        }
+                    });
+                });
+
+                $(document).on('click', '#saveEmail', function() {
+                    const newEmail = $('#newEmail').val();
+                    if ($('#emailStatus').hasClass('error') || !emailChecked) {
+                        alert('이메일을 올바르게 입력하고 중복 확인을 해주세요.');
+                        return;
+                    }
+                    $.ajax({
+                        url: '/api/info/email?newEmail=' + encodeURIComponent(newEmail),
+                        type: 'PUT',
+                        success: function() {
+                            $('#emailContainer').html(
+                                `<span id="email">${newEmail}</span>` +
+                                `<a href="#" id="editEmail" style="margin-left: 10px;">수정</a>`
+                            );
+                        },
+                        error: function() {
+                            alert('이메일 수정에 실패했습니다.');
+                        }
+                    });
+                });
+
+                $(document).on('click', '#cancelEditEmail', function() {
+                    $('#emailContainer').html(
+                        `<span id="email">${currentEmail}</span>` +
+                        `<a href="#" id="editEmail" style="margin-left: 10px;">수정</a>`
+                    );
+                });
+            });
         });
     </script>
 </head>
@@ -396,7 +478,10 @@
     </div>
     <div class="info-card center">
         <label>Email:</label>
-        <span th:text="${userInfo.email}"></span>
+        <div id="emailContainer" style="flex-grow: 1; display: flex; justify-content: space-between;">
+            <span id="email" style="flex-grow: 1; text-align: center;" th:text="${userInfo.email}"></span>
+            <a href="#" id="editEmail" style="margin-left: 10px;">수정</a>
+        </div>
     </div>
     <div class="info-card">
         <label>댓글 이메일 수신 :</label>

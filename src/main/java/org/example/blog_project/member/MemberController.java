@@ -135,6 +135,18 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/api/info/email")
+    public ResponseEntity<String> updateEmail(@RequestParam String newEmail){
+        Long memberId = Long.parseLong(UserContext.getUserId());
+        Boolean result = memberService.updateEmail(memberId, newEmail);
+        if(result){
+            return ResponseEntity.ok("이메일 변경 완료");
+        }
+        return ResponseEntity.ok("이메일 변경 오류");
+
+    }
+
+
     @DeleteMapping("/api/delete-account")
     public ResponseEntity<String> deleteMember(@RequestParam String password){
         Long memberId =Long.parseLong(UserContext.getUserId());

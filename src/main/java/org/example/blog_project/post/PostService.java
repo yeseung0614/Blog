@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.blog_project.member.Member;
 import org.example.blog_project.member.MemberRepository;
+import org.example.blog_project.post.dto.CreatePostResDto;
 import org.example.blog_project.post.dto.PostForm;
 import org.example.blog_project.post_image.PostImageService;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final PostImageService postImageService;
 
-    public void createPost(Long memberId, PostForm postForm, List<MultipartFile> files){
+    public CreatePostResDto createPost(Long memberId, PostForm postForm, List<MultipartFile> files){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 유저"));
         Post post = Post.builder()
@@ -31,5 +32,17 @@ public class PostService {
                 .build();
         postRepository.save(post);
         postImageService.createPostImage(post,files);
+
+        return CreatePostResDto.builder()
+                .postId(post.getPostId())
+                .isTemp(post.getIsTemp())
+                .build();
+    }
+
+    public void publishPost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 게시글"));
+        post.setTemp(false);
+        postRepository.save(post);
     }
 }

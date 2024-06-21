@@ -76,4 +76,8 @@ public class Post {
         this.member = member;
         this.postTagList = postTagList;
     }
+
+    public void setTemp(Boolean temp) {
+        isTemp = temp;
+    }
 }

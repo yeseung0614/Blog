@@ -23,7 +23,7 @@ public class PostController {
     }
 
     @PostMapping("/api/posts")
-    public String createPost(@ModelAttribute PostForm postForm,
+    public String createPost(@RequestPart PostForm postForm,
                              @RequestParam(name = "files",required = false) List<MultipartFile> files){
         Long memberId = Long.parseLong(UserContext.getUserId());
         postService.createPost(memberId,postForm,files);

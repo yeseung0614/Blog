@@ -86,7 +86,7 @@
 <body>
 <div class="container">
     <h1>게시글 작성</h1>
-    <form th:action="@{/api/posts}" method="post" enctype="multipart/form-data">
+    <form id="postForm" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="title">제목</label>
             <input type="text" id="title" name="title" required>
@@ -113,5 +113,43 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.getElementById('postForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Create a FormData object
+        var formData = new FormData();
+
+        // Append files to FormData
+        var files = document.getElementById('files').files;
+        for (var i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
+        }
+
+        // Create JSON object for postForm data
+        var postForm = {
+            title: document.getElementById('title').value,
+            tags: document.getElementById('tags').value.split(',').map(function(tag) { return {name: tag.trim()}; }),
+            content: document.getElementById('content').value,
+            isTemp: document.getElementById('isTemp').checked
+        };
+
+        // Append postForm JSON to FormData
+        formData.append('postForm', new Blob([JSON.stringify(postForm)], { type: 'application/json' }));
+
+        // Send the request
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/posts', true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                window.location.href = '/';
+            } else {
+                alert('Error: ' + xhr.statusText);
+            }
+        };
+        xhr.send(formData);
+    });
+</script>
 </body>
 </html>

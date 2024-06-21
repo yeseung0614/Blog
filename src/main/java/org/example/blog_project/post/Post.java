@@ -44,7 +44,7 @@ public class Post {
     private String mainImageUrl = null;
 
     @NotNull
-    private Integer views;
+    private Integer views = 0;
 
 
     @ManyToOne(fetch = FetchType.LAZY)

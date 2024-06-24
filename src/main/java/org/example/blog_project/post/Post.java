@@ -46,6 +46,11 @@ public class Post {
     @NotNull
     private Integer views = 0;
 
+    private String introduce;
+
+    @NotNull
+    private String postUrl;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -78,5 +83,26 @@ public class Post {
 
     public void setTemp(Boolean temp) {
         isTemp = temp;
+    }
+
+    public void updateTitle(String title){
+        this.title = title;
+    }
+    public void updateContent(String content){
+        this.content = content;
+    }
+    public void setIntroduce(String introduce){
+        this.introduce = introduce;
+    }
+    public void setSeries(String series){
+        this.series = series;
+    }
+
+    public void setisHide(Boolean hide) {
+        isHide = hide;
+    }
+
+    public void setPostUrl(String postUrl) {
+        this.postUrl = postUrl;
     }
 }

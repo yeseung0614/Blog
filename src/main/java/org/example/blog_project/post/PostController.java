@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.blog_project.member.UserContext;
 import org.example.blog_project.post.dto.CreatePostResDto;
 import org.example.blog_project.post.dto.PostForm;
+import org.example.blog_project.post.dto.PublishForm;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -53,10 +55,26 @@ public class PostController {
     }
 
     @PostMapping("/api/posts/publish")
-    public String publishPost(@RequestParam("postId") Long postId) {
-        postService.publishPost(postId);
+    public String publishPost(@RequestParam("postId") Long postId,
+                              @RequestPart(name = "publishForm")PublishForm form,
+                              @RequestParam(name = "file",required = false) MultipartFile file) {
+        postService.publishPost(postId,form,file);
         return "redirect:/";
     }
+
+    @PutMapping("/api/posts/{postId}")
+    public ResponseEntity<String> updatePost(@RequestBody PostForm form, @PathVariable Long postId ){
+        String result = postService.updatePost(form, postId);
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/api/posts/{postId}")
+    public ResponseEntity<String> deletePost(@PathVariable Long postId){
+        String result = postService.deletePost(postId);
+        return ResponseEntity.ok(result);
+    }
+
+
 
 
 }

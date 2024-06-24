@@ -29,6 +29,14 @@ public class PostTagService {
 
             PostTag postTag = new PostTag(post, tag);
             postTagRepository.save(postTag);
+
+            post.getPostTagList().add(postTag);
         }
     }
+
+    @Transactional
+    public void deletePostTag(Post post){
+        postTagRepository.deleteAllByPost(post);
+    }
+
 }

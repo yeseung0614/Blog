@@ -7,9 +7,11 @@ import org.example.blog_project.member.MemberRepository;
 import org.example.blog_project.post.dto.CreatePostResDto;
 import org.example.blog_project.post.dto.PostForm;
 import org.example.blog_project.post_image.PostImageService;
+import org.example.blog_project.post_tag.PostTagService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -19,19 +21,33 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final PostImageService postImageService;
+    private final PostTagService postTagService;
 
     public CreatePostResDto createPost(Long memberId, PostForm postForm, List<MultipartFile> files){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 유저"));
         Post post = Post.builder()
                 .title(postForm.getTitle())
-                .postTagList(postForm.getTags())
                 .content(postForm.getContent())
                 .isTemp(postForm.getIsTemp())
                 .member(member)
                 .build();
-        postRepository.save(post);
+        Post savedPost = postRepository.save(post);
+
+        if(postForm.getTags()!=null){
+            postTagService.createPostTag(savedPost,postForm.getTags());
+        }
+
+
+        // files가 null일 경우 빈 리스트로 초기화
+        if (files == null) {
+            files = Collections.emptyList();
+        }
+
         postImageService.createPostImage(post,files);
+
+        log.info("Post created with ID: " + post.getPostId() + ", isTemp: " + post.getIsTemp());
+
 
         return CreatePostResDto.builder()
                 .postId(post.getPostId())

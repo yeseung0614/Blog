@@ -82,6 +82,7 @@
             background-color: #ff3333;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -115,41 +116,61 @@
 </div>
 
 <script>
-    document.getElementById('postForm').addEventListener('submit', function(event) {
-        event.preventDefault();
+    $(document).ready(function() {
+        $('#postForm').on('submit', function(event) {
+            event.preventDefault();
 
-        // Create a FormData object
-        var formData = new FormData();
+            var formData = new FormData();
 
-        // Append files to FormData
-        var files = document.getElementById('files').files;
-        for (var i = 0; i < files.length; i++) {
-            formData.append('files', files[i]);
-        }
+            // Append JSON for the postForm fields excluding the file
+            var postForm = {
+                title: $('#title').val(),
+                tags: $('#tags').val().split(',').map(function(tag) { return tag.trim(); }),
+                content: $('#content').val(),
+                isTemp: $('#isTemp').is(':checked')
+            };
 
-        // Create JSON object for postForm data
-        var postForm = {
-            title: document.getElementById('title').value,
-            tags: document.getElementById('tags').value.split(',').map(function(tag) { return {name: tag.trim()}; }),
-            content: document.getElementById('content').value,
-            isTemp: document.getElementById('isTemp').checked
-        };
+            // Add the postForm JSON to FormData
+            formData.append('postForm', new Blob([JSON.stringify(postForm)], {type: 'application/json'}));
 
-        // Append postForm JSON to FormData
-        formData.append('postForm', new Blob([JSON.stringify(postForm)], { type: 'application/json' }));
-
-        // Send the request
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/api/posts', true);
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                window.location.href = '/';
-            } else {
-                alert('Error: ' + xhr.statusText);
+            // Check if files are selected and append only if present
+            var files = $('#files')[0].files;
+            if (files.length > 0) {
+                for (var i = 0; i < files.length; i++) {
+                    formData.append('files', files[i]);
+                }
             }
-        };
-        xhr.send(formData);
+
+            // Iterate through FormData to see its contents
+            for (var pair of formData.entries()) {
+                console.log(pair[0]+ ', ' + pair[1]);
+            }
+
+            // Send the AJAX request
+            $.ajax({
+                url: '/api/posts',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    // 서버가 리다이렉트를 요구하는 경우
+                    if (response.isTemp ===false) { // Temporary Redirect
+                        window.location.href = '/publishForm?postId=' + response.postId;
+                    } else {
+                        // 기본 홈 페이지로 리다이렉트
+                        window.location.href = '/';
+                    }
+                },
+                error: function(xhr) {
+                    alert('Error: ' + xhr.statusText);
+                }
+            });
+        });
     });
+
+
+
 </script>
 </body>
 </html>

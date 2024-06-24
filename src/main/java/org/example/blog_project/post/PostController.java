@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+
 @Controller
 @RequiredArgsConstructor
 @Slf4j
@@ -31,17 +32,24 @@ public class PostController {
     }
 
     @PostMapping("/api/posts")
-    public String createPost(@RequestPart PostForm postForm,
+    @ResponseBody
+    public CreatePostResDto createPost(@RequestPart(name = "postForm") PostForm postForm,
                              @RequestParam(name = "files",required = false) List<MultipartFile> files){
+       log.info(postForm.getTitle());
+       log.info(""+postForm.getTags()[0]);
+       log.info(postForm.getContent());
+       log.info(""+postForm.getIsTemp());
+       log.info(""+files);
+
         Long memberId = Long.parseLong(UserContext.getUserId());
         CreatePostResDto result = postService.createPost(memberId, postForm, files);
 
         log.info("" + result.getPostId() + result.getIsTemp());
         if (!result.getIsTemp()) {
-            return "redirect:/publishForm?postId=" + result.getPostId();
+            return result;
         }
 
-        return "redirect:/";
+        return null;
     }
 
     @PostMapping("/api/posts/publish")

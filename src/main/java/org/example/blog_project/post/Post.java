@@ -69,12 +69,11 @@ public class Post {
 
 
     @Builder
-    public Post(String title, String content, Boolean isTemp, Member member, List<PostTag> postTagList) {
+    public Post(String title, String content, Boolean isTemp, Member member) {
         this.title = title;
         this.content = content;
         this.isTemp = isTemp;
         this.member = member;
-        this.postTagList = postTagList;
     }
 
     public void setTemp(Boolean temp) {

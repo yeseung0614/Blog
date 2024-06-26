@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -79,9 +80,14 @@ public class PostService {
         post.setIntroduce(form.getIntroduce());
         post.setisHide(form.getIsHide());
         post.setSeries(post.getSeries());
-        String encodeResult = URLEncoder.encode(" /@"+post.getMember().getLoginId()+"/posts"+form.getPostUrl(), StandardCharsets.UTF_8);
-        log.info(encodeResult);
-        post.setPostUrl(encodeResult);
+
+        try {
+            String encodedInput = URLEncoder.encode(form.getPostUrl(), "UTF-8");
+            String url = String.format("/@%s/%s", post.getMember().getLoginId(), encodedInput);
+            post.setPostUrl(url);
+        } catch (UnsupportedEncodingException e) {
+            log.info(e.getMessage());
+        }
 
         if(file != null){
             if(post.getMainImageUrl()!=null){
@@ -91,7 +97,7 @@ public class PostService {
             post.setMainImageUrl(fileName);
         }
         postRepository.save(post);
-        return encodeResult;
+        return post.getPostUrl();
     }
 
     public String updatePost(PostForm form,Long postId){

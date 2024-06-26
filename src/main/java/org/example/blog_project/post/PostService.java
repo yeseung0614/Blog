@@ -11,16 +11,28 @@ import org.example.blog_project.post_image.PostImageService;
 import org.example.blog_project.post_tag.PostTag;
 import org.example.blog_project.post_tag.PostTagRepository;
 import org.example.blog_project.post_tag.PostTagService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PostService {
+
+    @Value("${main.file.path}")
+    private String uploadDir;
+
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final PostImageService postImageService;
@@ -59,19 +71,27 @@ public class PostService {
                 .build();
     }
 
-    public void publishPost(Long postId, PublishForm form, MultipartFile file) {
-        Post post = postRepository.findById(postId)
+    public String publishPost(PublishForm form, MultipartFile file) {
+        Post post = postRepository.findById(form.getPostId())
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 게시글"));
         post.setTemp(false);
 
         post.setIntroduce(form.getIntroduce());
         post.setisHide(form.getIsHide());
         post.setSeries(post.getSeries());
-        post.setPostUrl(" /@"+post.getMember().getLoginId()+"/posts"+form.getPostUrl());
+        String encodeResult = URLEncoder.encode(" /@"+post.getMember().getLoginId()+"/posts"+form.getPostUrl(), StandardCharsets.UTF_8);
+        log.info(encodeResult);
+        post.setPostUrl(encodeResult);
 
+        if(file != null){
+            if(post.getMainImageUrl()!=null){
+                deleteFile(form.getPostId(), post.getMainImageUrl());
+            }
+            String fileName = saveFile(file);
+            post.setMainImageUrl(fileName);
+        }
         postRepository.save(post);
-
-        //TODO : 썸네일등록
+        return encodeResult;
     }
 
     public String updatePost(PostForm form,Long postId){
@@ -89,7 +109,6 @@ public class PostService {
             postTagService.createPostTag(post, form.getTags());
         }
 
-
         postRepository.save(post);
         return "수정 성공";
     }
@@ -102,5 +121,52 @@ public class PostService {
         postRepository.delete(post);
 
         return "삭제 성공";
+    }
+
+    public boolean deleteFile(Long postId, String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
+            return false;
+        }
+        try {
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new RuntimeException("존재하지 않는 게시글"));
+
+            if (post.getMainImageUrl() == null) {
+                return false;
+            }
+
+            post.setMainImageUrl(null);
+            postRepository.save(post);
+            Path path = Paths.get(uploadDir).resolve(fileName);
+            Files.deleteIfExists(path);
+            System.out.println("File deleted: " + path.toString());
+            return true;
+        } catch (IOException e) {
+            System.err.println("Failed to delete file: " + e.getMessage());
+            return false;
+        }
+    }
+
+
+    private String saveFile(MultipartFile file) {
+        try {
+            // Ensure the upload directory exists
+            Path uploadPath = Paths.get(uploadDir);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            // Generate a unique filename
+            String originalFilename = file.getOriginalFilename();
+            String uniqueFilename = UUID.randomUUID() + "_" + originalFilename;
+            Path filePath = uploadPath.resolve(uniqueFilename);
+
+            // Save the file
+            file.transferTo(filePath.toFile());
+
+            return uniqueFilename;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save file", e);
+        }
     }
 }

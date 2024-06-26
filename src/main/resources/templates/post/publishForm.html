@@ -2,79 +2,91 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>출간하기</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 800px;
-            box-sizing: border-box;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .actions {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .actions button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .actions button:hover {
-            background-color: #45a049;
-        }
-        .actions .cancel {
-            background-color: #FF5252;
-        }
-        .actions .cancel:hover {
-            background-color: #ff3333;
-        }
-    </style>
+    <title>Publish Post</title>
+    <!-- Include jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        $(document).ready(function () {
+
+            var urlParams = new URLSearchParams(window.location.search);
+            var postId = urlParams.get('postId');
+
+            $('#publishForm').submit(function (event) {
+                event.preventDefault(); // 기본 폼 제출 방지
+
+                var formData = new FormData();
+                var publishForm = {
+                    postId: postId,
+                    introduce: $('#introduce').val(),
+                    isHide: $('#isHide').is(':checked'),
+                    series: $('#series').val(),
+                    postUrl: $('#postUrl').val()
+                };
+
+                formData.append('publishForm', new Blob([JSON.stringify(publishForm)], {type: 'application/json'}));
+
+                // FormData 내용을 콘솔에 출력
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}: ${value}`);
+                }
+
+                if ($('#file')[0].files.length > 0) {
+                    formData.append('file', $('#file')[0].files[0]);
+                }
+
+                $.ajax({
+                    url: '/api/posts/publish',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false, // 이 부분을 false로 설정하면 브라우저가 boundary를 포함한 적절한 Content-Type을 설정합니다.
+                    success: function (data) {
+                        window.location.href = data;
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Error: ' + xhr.responseText || status);
+                    }
+                });
+            });
+        });
+
+        /*]]>*/
+    </script>
+
+
 </head>
 <body>
-<div class="container">
-    <h1>출간하기</h1>
-    <form th:action="@{/api/posts/publish}" method="post">
-        <div class="form-group">
-            <input type="hidden" id="postId" name="postId" th:value="${postId}">
+<div>
+    <h2>Publish Your Post</h2>
+    <form id="publishForm" enctype="multipart/form-data">
+
+        <div>
+            <label for="introduce">Introduction:</label>
+            <input type="text" id="introduce" name="introduce" required/>
         </div>
-        <div class="actions">
-            <button type="submit">출간</button>
-            <button type="button" class="cancel" onclick="window.location.href='/'">취소</button>
+
+        <div>
+            <label for="isHide">Hide Post:</label>
+            <input type="checkbox" id="isHide" name="isHide"/>
         </div>
+
+        <div>
+            <label for="series">Series:</label>
+            <input type="text" id="series" name="series"/>
+        </div>
+
+        <div>
+            <label for="postUrl">Post URL:</label>
+            <input type="text" id="postUrl" name="postUrl" required/>
+        </div>
+
+        <div>
+            <label for="file">Main Image:</label>
+            <input type="file" id="file" name="file"/>
+        </div>
+
+        <button type="submit">Publish Post</button>
     </form>
 </div>
 </body>

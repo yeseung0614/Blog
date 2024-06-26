@@ -55,11 +55,11 @@ public class PostController {
     }
 
     @PostMapping("/api/posts/publish")
-    public String publishPost(@RequestParam("postId") Long postId,
+    public String publishPost(
                               @RequestPart(name = "publishForm")PublishForm form,
                               @RequestParam(name = "file",required = false) MultipartFile file) {
-        postService.publishPost(postId,form,file);
-        return "redirect:/";
+        String url = postService.publishPost( form, file);
+        return "redirect:"+url;
     }
 
     @PutMapping("/api/posts/{postId}")

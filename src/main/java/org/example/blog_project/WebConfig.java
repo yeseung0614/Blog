@@ -24,6 +24,12 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${content.upload.path}")
     private String contentUploadPath;
 
+    @Value("${main.resource.path}")
+    private String mainResourcePath;
+
+    @Value("${main.upload.path")
+    private String mainUploadPath;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler(uploadPath)
@@ -31,6 +37,9 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler(contentUploadPath)
                 .addResourceLocations(contentResourcePath);
+
+        registry.addResourceHandler(mainResourcePath)
+                .addResourceLocations(mainUploadPath);
     }
 
     @Bean

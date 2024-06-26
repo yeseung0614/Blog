@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class PublishForm {
+    private Long postId;
     private String introduce;
     private Boolean isHide;
     private String series;

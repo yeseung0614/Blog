@@ -48,7 +48,7 @@ public class Post {
 
     private String introduce;
 
-    @NotNull
+
     private String postUrl;
 
 
@@ -104,5 +104,9 @@ public class Post {
 
     public void setPostUrl(String postUrl) {
         this.postUrl = postUrl;
+    }
+
+    public void setMainImageUrl(String mainImageUrl) {
+        this.mainImageUrl = mainImageUrl;
     }
 }
